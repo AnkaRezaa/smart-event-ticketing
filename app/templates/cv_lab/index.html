@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Computer Vision & ML Laboratory — Smart Event Ticketing{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <div class="flex-between">
+    <div>
+      <div class="badge badge-primary" style="margin-bottom: 0.5rem;">Academic Research & Verification</div>
+      <h1>Computer Vision & ML Laboratory</h1>
+      <p>Inspect intermediate stages of the face detection, HOG gradient computation, and KNN classification pipeline.</p>
+    </div>
+    <div>
+      <a href="/research/results" class="btn btn-secondary">Research Experiments</a>
+    </div>
+  </div>
+</div>
+
+<!-- Input Controls Card -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="grid grid-2" style="align-items: center;">
+    <div>
+      <h3 style="margin-bottom: 0.75rem;">Step 1: Provide Input Face Image</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 1.25rem;">
+        Capture a frame from your webcam or upload any JPEG/PNG image to pass through the CV pipeline.
+      </p>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+        <button id="btn-lab-camera-start" class="btn btn-primary">Start Webcam</button>
+        <button id="btn-lab-capture" class="btn btn-success" disabled>Analyze Camera Frame</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Or Upload File:</label>
+        <input type="file" id="lab-file-input" accept="image/*" class="form-input" style="font-size: 0.85rem;" />
+      </div>
+
+      <div id="lab-status" class="alert alert-warning" style="margin-top: 1rem; margin-bottom: 0;">
+        Ready for image acquisition.
+      </div>
+    </div>
+
+    <div>
+      <div class="camera-container" style="max-width: 380px; margin: 0 auto;">
+        <video id="lab-camera" class="camera-feed" autoplay playsinline muted></video>
+        <div class="camera-guide-box"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Laboratory Processing Results -->
+<div id="lab-results" style="display: none;">
+  <!-- Section 1: Preprocessing & Bounding Box -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">1. Face Detection & Preprocessing (128×128 Normalized)</h3>
+    <div class="grid grid-4" style="text-align: center;">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Face Bounding Box</div>
+        <img id="vis-annotated" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Detected Box" />
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Cropped Face ROI</div>
+        <img id="vis-roi" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Cropped ROI" />
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Grayscale Conversion</div>
+        <img id="vis-gray" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Grayscale" />
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Equalized Lighting</div>
+        <img id="vis-equalized" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Equalized" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Mathematical Gradient Analysis (Equations 1-4) -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <div class="flex-between" style="margin-bottom: 1rem;">
+      <h3>2. Mathematical Gradients (dx = [-1 0 1], dy = [-1 0 1]ᵀ)</h3>
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Formulas from Research Paper (Hardjianto et al.)</span>
+    </div>
+    <div class="grid grid-4" style="text-align: center;">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Horizontal Gradient (Gx)</div>
+        <img id="vis-gx" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Gx Gradient" />
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Vertical Gradient (Gy)</div>
+        <img id="vis-gy" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Gy Gradient" />
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Magnitude M = √(Gx² + Gy²)</div>
+        <img id="vis-mag" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Magnitude" />
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Orientation θ = atan2(Gy, Gx)</div>
+        <img id="vis-ori" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" alt="Orientation" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: HOG Feature Descriptors & 8,100 Numerical Vector -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <div class="grid grid-2" style="align-items: center;">
+      <div style="text-align: center;">
+        <h4 style="margin-bottom: 0.75rem;">HOG Visualization (Orientations: 9, Cells: 8×8)</h4>
+        <img id="vis-hog" style="max-width: 260px; margin: 0 auto; border-radius: var(--radius); border: 1px solid var(--border);" alt="HOG Map" />
+      </div>
+      <div>
+        <h4 style="margin-bottom: 0.75rem;">Feature Vector Analysis</h4>
+        <div style="background-color: var(--surface); padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); font-size: 0.85rem; line-height: 1.8;">
+          <div>Descriptor Length: <strong id="vis-dim" style="color: var(--primary);">8,100 values</strong></div>
+          <div id="vis-stats" style="margin-bottom: 0.5rem;"></div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">First 20 Descriptor Values:</div>
+          <code id="vis-first-values" style="display: block; font-size: 0.75rem; word-break: break-all; background: #000; padding: 0.5rem; border-radius: var(--radius-sm); margin-top: 0.25rem;"></code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Machine Learning Inference Verdict -->
+  <div class="card">
+    <h3 style="margin-bottom: 1rem;">4. Open-Set KNN Classification & Threshold Rejection</h3>
+    <div class="grid grid-4" style="background-color: var(--surface); padding: 1.25rem; border-radius: var(--radius); text-align: center;">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Nearest Enrolled Identity</div>
+        <strong id="ml-pred-user" style="font-size: 1.1rem; color: var(--text-primary);">-</strong>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Min Euclidean Distance</div>
+        <strong id="ml-pred-dist" style="font-size: 1.1rem; color: var(--text-primary);">-</strong>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Calibrated Threshold (&tau;)</div>
+        <strong id="ml-pred-thresh" style="font-size: 1.1rem; color: var(--warning);">-</strong>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Rejection Decision</div>
+        <div id="ml-pred-verdict">-</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/camera.js"></script>
+<script src="/static/js/cv-lab.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    new CVLabController();
+  });
+</script>
+{% endblock %}
+

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}My Tickets — Smart Event Ticketing{% endblock %}
+
+{% block content %}
+<div class="flex-between" style="margin-bottom: 2rem;">
+  <div>
+    <h1>My Digital Tickets</h1>
+    <p>Present your QR ticket at the venue turnstile for automated 2-stage verification.</p>
+  </div>
+  <a href="/participant/dashboard" class="btn btn-secondary">&larr; Dashboard</a>
+</div>
+
+{% if not tickets %}
+  <div class="card text-center" style="padding: 3rem;">
+    <p style="font-size: 1.1rem; margin-bottom: 1rem;">You don't have any tickets yet.</p>
+    <a href="/events" class="btn btn-primary">Find Events to Attend</a>
+  </div>
+{% else %}
+  <div class="grid grid-2">
+    {% for t in tickets %}
+      <div class="card">
+        <div class="flex-between" style="margin-bottom: 0.75rem;">
+          {% if t.status.value == 'ACTIVE' %}
+            <span class="badge badge-success">Valid (ACTIVE)</span>
+          {% elif t.status.value == 'USED' %}
+            <span class="badge badge-danger">Already Used</span>
+          {% else %}
+            <span class="badge badge-warning">{{ t.status.value }}</span>
+          {% endif %}
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Single Use Only</span>
+        </div>
+
+        <h3 class="card-title">{{ t.event.title }}</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          📍 {{ t.event.location }}<br>
+          🗓️ {{ t.event.start_at.strftime('%A, %d %b %Y %H:%M') }}
+        </p>
+
+        <div style="background-color: var(--surface); padding: 1rem; border-radius: var(--radius); margin-bottom: 1.25rem; font-size: 0.85rem;">
+          <div>Ticket Holder: <strong>{{ t.user.name }}</strong></div>
+          <div>Issued: {{ t.issued_at.strftime('%d %b %Y %H:%M') }}</div>
+          {% if t.used_at %}
+            <div style="color: var(--danger);">Checked In: {{ t.used_at.strftime('%d %b %Y %H:%M') }}</div>
+          {% endif %}
+        </div>
+
+        <a href="/participant/tickets/{{ t.id }}" class="btn btn-primary" style="width: 100%;">
+          View QR Ticket
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
+

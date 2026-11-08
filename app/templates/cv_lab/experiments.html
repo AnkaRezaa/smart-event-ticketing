@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Research Experiments — HOG, KNN & PSO Comparison{% endblock %}
+
+{% block content %}
+<div class="flex-between" style="margin-bottom: 2rem;">
+  <div>
+    <div class="badge badge-primary" style="margin-bottom: 0.5rem;">Academic Research Evaluation</div>
+    <h1>Machine Learning Experiment Results</h1>
+    <p>Empirical evaluation comparing Model A (Baseline KNN) vs Model B (PSO-Optimized KNN) following Hardjianto et al. (2026).</p>
+  </div>
+  <a href="/cv-lab" class="btn btn-secondary">&larr; Back to CV Lab</a>
+</div>
+
+{% if not report %}
+  <div class="card text-center" style="padding: 3rem;">
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1rem;">
+      No experiment report found. Run the benchmark experiment script first.
+    </p>
+    <code>python -m research.experiments.run_experiment</code>
+  </div>
+{% else %}
+  <!-- Comparison Summary Cards -->
+  <div class="grid grid-3" style="margin-bottom: 2.5rem;">
+    <div class="card">
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Model A (Baseline KNN)</div>
+      <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+        k = {{ report.baseline_model.k }} &bull; &tau; = {{ report.baseline_model.threshold }}
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-secondary);">
+        Accuracy: <strong>{{ (report.baseline_model.metrics.accuracy * 100)|round(2) }}%</strong><br>
+        False Acceptance: <strong>{{ (report.baseline_model.metrics.far * 100)|round(2) }}%</strong><br>
+        False Rejection: <strong>{{ (report.baseline_model.metrics.frr * 100)|round(2) }}%</strong>
+      </div>
+    </div>
+
+    <div class="card" style="border-color: var(--primary);">
+      <div class="flex-between" style="margin-bottom: 0.5rem;">
+        <span style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">Model B (PSO-KNN)</span>
+        <span class="badge badge-success">Optimized</span>
+      </div>
+      <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+        k = {{ report.pso_optimized_model.optimized_k }} &bull; &tau; = {{ report.pso_optimized_model.optimized_threshold }}
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-secondary);">
+        Accuracy: <strong>{{ (report.pso_optimized_model.metrics.accuracy * 100)|round(2) }}%</strong><br>
+        False Acceptance: <strong>{{ (report.pso_optimized_model.metrics.far * 100)|round(2) }}%</strong><br>
+        False Rejection: <strong>{{ (report.pso_optimized_model.metrics.frr * 100)|round(2) }}%</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Evaluation Protocol</div>
+      <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">JESSI 2026 Protocol</div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+        &bull; 20 Registered Identities (9 poses/identity)<br>
+        &bull; 27 Test Probes (20 Known, 7 Unknown)<br>
+        &bull; 8,100 Numerical HOG Dimensions
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Display -->
+  <div class="grid grid-2" style="margin-bottom: 2.5rem;">
+    <div class="card text-center">
+      <h3 style="margin-bottom: 1rem;">PSO Fitness Convergence Curve</h3>
+      <img src="/static/results/pso_convergence.png" alt="PSO Convergence Curve" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" />
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.75rem;">
+        Swarm particles converge towards optimal fitness maximizing accuracy while penalizing FAR.
+      </p>
+    </div>
+
+    <div class="card text-center">
+      <h3 style="margin-bottom: 1rem;">Biometric Metric Comparison</h3>
+      <img src="/static/results/model_comparison.png" alt="Model Comparison Chart" style="width: 100%; border-radius: var(--radius); border: 1px solid var(--border);" />
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.75rem;">
+        Accuracy, False Acceptance Rate (FAR), and False Rejection Rate (FRR) comparison.
+      </p>
+    </div>
+  </div>
+
+  <!-- Raw JSON Report Inspection -->
+  <div class="card">
+    <h3 style="margin-bottom: 1rem;">Experiment Metadata & Parameters</h3>
+    <pre style="background: #000; padding: 1.25rem; border-radius: var(--radius); overflow-x: auto; font-size: 0.85rem; color: #34d399;">{{ raw_json }}</pre>
+  </div>
+{% endif %}
+{% endblock %}
+

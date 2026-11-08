@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Smart Event Ticketing System{% endblock %}</title>
+  
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% include "components/navbar.html" %}
+
+  <main>
+    {% if error_msg %}
+      <div class="alert alert-danger">{{ error_msg }}</div>
+    {% endif %}
+    {% if success_msg %}
+      <div class="alert alert-success">{{ success_msg }}</div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "components/footer.html" %}
+
+  <script src="/static/js/api.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
+

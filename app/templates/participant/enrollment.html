@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Facial Enrollment — Smart Event Ticketing{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="/participant/dashboard" style="font-size: 0.9rem; color: var(--text-muted);">&larr; Back to Dashboard</a>
+  </div>
+
+  <div class="card" style="padding: 2rem;">
+    <div class="flex-between" style="margin-bottom: 1rem;">
+      <h2>Biometric Facial Enrollment</h2>
+      <span class="badge badge-primary">9 Guided Samples</span>
+    </div>
+
+    <p style="margin-bottom: 1.5rem;">
+      In accordance with our computer vision methodology (HOG, KNN, and PSO), we capture 9 standardized facial orientation samples. These features will be extracted and indexed exclusively for your ticket verification at the venue.
+    </p>
+
+    <!-- Progress bar -->
+    <div style="background-color: var(--surface); border-radius: var(--radius-full); height: 12px; overflow: hidden; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+      <div id="enrollment-progress" style="width: 0%; height: 100%; background-color: var(--primary); transition: width 0.3s ease; text-align: center; font-size: 0.65rem; color: white;"></div>
+    </div>
+
+    <!-- Camera container -->
+    <div class="camera-container">
+      <video id="enrollment-video" class="camera-feed" autoplay playsinline muted></video>
+      <div class="camera-guide-box"></div>
+    </div>
+
+    <!-- Prompt status -->
+    <div id="enrollment-status" class="alert alert-warning" style="text-align: center; justify-content: center; font-size: 1rem;">
+      Click "Start Camera" to initialize the video stream.
+    </div>
+
+    <!-- Camera controls -->
+    <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 2rem;">
+      <button id="btn-start-camera" class="btn btn-primary btn-lg">
+        Start Camera
+      </button>
+      <button id="btn-capture-sample" class="btn btn-success btn-lg" disabled>
+        Capture Sample
+      </button>
+      <div style="width: 100%; text-align: center; margin-top: 0.5rem;">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Or upload photo for current pose (testing without webcam): </span>
+        <input type="file" id="enroll-file-input" accept="image/*" style="font-size: 0.8rem; color: var(--text-secondary);" />
+      </div>
+    </div>
+
+    <!-- Captured thumbnails -->
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-secondary);">Captured Samples Gallery</h3>
+      <div id="sample-previews" style="display: flex; gap: 0.75rem; flex-wrap: wrap; min-height: 80px; background-color: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px dashed var(--border); align-items: center;">
+        <span id="no-samples-msg" style="color: var(--text-muted); font-size: 0.85rem;">No samples captured yet.</span>
+      </div>
+    </div>
+
+    <!-- Consent and Finalize -->
+    <div id="consent-section" style="display: none; background-color: var(--surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+      <h3 style="margin-bottom: 0.75rem; color: var(--text-primary);">Biometric Data Consent</h3>
+      <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem;">
+        By checking the box below, you consent to the storage of extracted HOG numerical descriptors and facial reference images for single-use event entrance verification. Facial descriptors are stored privately and never shared with third parties.
+      </p>
+      <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; cursor: pointer; margin-bottom: 1.5rem;">
+        <input type="checkbox" id="consent-check" style="width: 18px; height: 18px;">
+        <span>I explicitly consent to biometric facial verification for my tickets.</span>
+      </label>
+      <button id="btn-finalize-enrollment" class="btn btn-primary btn-lg" style="width: 100%;">
+        Save Biometric Profile & Issue Tickets
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/camera.js"></script>
+<script src="/static/js/enrollment.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const videoEl = document.getElementById('enrollment-video');
+    const statusEl = document.getElementById('enrollment-status');
+    const progressEl = document.getElementById('enrollment-progress');
+    const previewContainer = document.getElementById('sample-previews');
+    const btnCapture = document.getElementById('btn-capture-sample');
+    const btnStart = document.getElementById('btn-start-camera');
+
+    const manager = new EnrollmentManager(videoEl, statusEl, progressEl, previewContainer, btnCapture, btnStart);
+
+    document.getElementById('btn-finalize-enrollment').addEventListener('click', async () => {
+      const consent = document.getElementById('consent-check').checked;
+      if (!consent) {
+        alert('Please consent to the biometric processing terms to proceed.');
+        return;
+      }
+
+      try {
+        const res = await API.post('/api/enrollment/complete', { consent: true });
+        alert('Facial enrollment successfully completed! Your tickets have been activated.');
+        window.location.href = '/participant/tickets';
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+  });
+</script>
+{% endblock %}
+

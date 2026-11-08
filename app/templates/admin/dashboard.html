@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Dashboard — Smart Event Ticketing{% endblock %}
+
+{% block content %}
+<div class="flex-between" style="margin-bottom: 2rem;">
+  <div>
+    <h1>Administrator Dashboard</h1>
+    <p>System overview, biometric model status, and live check-in monitoring.</p>
+  </div>
+  <div class="flex">
+    <a href="/admin/events/new" class="btn btn-primary">+ Create New Event</a>
+    <a href="/cv-lab" class="btn btn-secondary">CV & ML Lab</a>
+  </div>
+</div>
+
+<!-- Metrics Cards -->
+<div class="grid grid-4" style="margin-bottom: 2.5rem;">
+  <div class="card">
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Total Events</div>
+    <div style="font-size: 2rem; font-weight: 700;">{{ total_events }}</div>
+  </div>
+  <div class="card">
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Total Users</div>
+    <div style="font-size: 2rem; font-weight: 700;">{{ total_users }}</div>
+  </div>
+  <div class="card">
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Tickets Issued</div>
+    <div style="font-size: 2rem; font-weight: 700;">{{ total_tickets }}</div>
+  </div>
+  <div class="card">
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Check-in Granted</div>
+    <div style="font-size: 2rem; font-weight: 700; color: var(--success);">{{ checkin_granted }}</div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom: 2.5rem;">
+  <!-- Machine Learning & Model Status -->
+  <div class="card">
+    <div class="flex-between" style="margin-bottom: 1rem;">
+      <h3>Active Recognition Model</h3>
+      <span class="badge badge-success">ACTIVE</span>
+    </div>
+    <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary);">
+      <div>Algorithm: <strong>{{ model_info.algorithm }}</strong> ({{ model_info.version_id }})</div>
+      <div>Feature Extraction: <strong>HOG 128×128 (8,100 dimensions)</strong></div>
+      <div>Classifier: <strong>KNN (k={{ model_info.knn.k }}, Euclidean Metric)</strong></div>
+      <div>Rejection Threshold &tau;: <strong>{{ model_info.threshold }}</strong></div>
+      <div>PSO Particles: <strong>{{ model_info.pso.num_particles }} particles &bull; {{ model_info.pso.max_iterations }} iters</strong></div>
+      <div>Enrolled Identities in Gallery: <strong>{{ gallery_count }} face vectors</strong></div>
+    </div>
+    <div style="margin-top: 1.25rem;">
+      <a href="/cv-lab" class="btn btn-secondary btn-sm">Inspect in CV Lab &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Quick System Health -->
+  <div class="card">
+    <h3 style="margin-bottom: 1rem;">System Health & Privacy</h3>
+    <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary);">
+      <div>Database: <strong>MySQL / SQLite Connection Active</strong></div>
+      <div>Biometric Privacy: <strong>Private Isolated Directory Enforced</strong></div>
+      <div>Anti-Spoofing Status: <strong>Standard Supervised Check-In</strong></div>
+      <div>Check-in Concurrency: <strong>Atomic Conditional Update Active</strong></div>
+      <div>Session Expiration: <strong>3-minute Sliding Window</strong></div>
+    </div>
+    <div style="margin-top: 1.25rem;">
+      <a href="/operator/dashboard" class="btn btn-secondary btn-sm">Test Operator Scanner &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Check-in Logs Table -->
+<div class="card">
+  <h3 style="margin-bottom: 1rem;">Real-time Check-in Audit Logs</h3>
+  {% if not logs %}
+    <p style="color: var(--text-muted);">No check-in logs recorded yet.</p>
+  {% else %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted);">
+            <th style="padding: 0.75rem;">Time</th>
+            <th style="padding: 0.75rem;">Ticket ID</th>
+            <th style="padding: 0.75rem;">Event</th>
+            <th style="padding: 0.75rem;">Participant</th>
+            <th style="padding: 0.75rem;">Result</th>
+            <th style="padding: 0.75rem;">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+            <tr style="border-bottom: 1px solid var(--surface-hover);">
+              <td style="padding: 0.75rem;">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td style="padding: 0.75rem;"><code>{{ log.ticket_id[:8] }}...</code></td>
+              <td style="padding: 0.75rem;">{{ log.ticket.event.title }}</td>
+              <td style="padding: 0.75rem;">{{ log.ticket.user.name }}</td>
+              <td style="padding: 0.75rem;">
+                {% if log.result.value == 'GRANTED' %}
+                  <span class="badge badge-success">GRANTED</span>
+                {% else %}
+                  <span class="badge badge-danger">DENIED</span>
+                {% endif %}
+              </td>
+              <td style="padding: 0.75rem; color: var(--text-secondary);">
+                {{ log.failure_reason or 'Biometric match confirmed' }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Event Ticketing System — Biometric Entrance Authentication{% endblock %}
+
+{% block content %}
+<section style="text-align: center; padding: 3rem 1rem 4rem;">
+  <div class="badge badge-primary" style="margin-bottom: 1.5rem;">Academic Research & Event Security</div>
+  <h1 style="font-size: 3rem; max-width: 800px; margin: 0 auto 1.5rem; line-height: 1.15;">
+    Next-Generation Event Ticketing with <span style="color: var(--primary);">Facial Verification</span>
+  </h1>
+  <p style="font-size: 1.2rem; max-width: 680px; margin: 0 auto 2.5rem; color: var(--text-secondary);">
+    Combat ticket scalping, illicit reselling, and identity theft. Our two-stage entrance system validates digital QR tokens and verifies ticket ownership using <strong>HOG Feature Descriptors</strong>, <strong>K-Nearest Neighbors (KNN)</strong>, and <strong>Particle Swarm Optimization (PSO)</strong>.
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <a href="/events" class="btn btn-primary btn-lg">Browse Events</a>
+    <a href="/cv-lab" class="btn btn-secondary btn-lg">Explore CV & ML Lab</a>
+  </div>
+</section>
+
+<div class="grid grid-3" style="margin-bottom: 4rem;">
+  <div class="card">
+    <div style="font-size: 2rem; margin-bottom: 1rem;">🎫</div>
+    <h3 class="card-title">1. Secure QR Token</h3>
+    <p>Cryptographically unpredictable tokens hashed using SHA-256 in the database. Valid for exactly one successful venue entrance.</p>
+  </div>
+  <div class="card">
+    <div style="font-size: 2rem; margin-bottom: 1rem;">📷</div>
+    <h3 class="card-title">2. HOG Feature Extraction</h3>
+    <p>Standardized 128×128 facial alignment with 9 gradient orientation bins across 8×8 cells, yielding an 8,100-dimensional descriptor vector.</p>
+  </div>
+  <div class="card">
+    <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+    <h3 class="card-title">3. PSO-Optimized KNN</h3>
+    <p>Instance-based identity matching with Particle Swarm Optimization searching for optimal neighborhood parameter <em>k</em> and rejection threshold.</p>
+  </div>
+</div>
+
+<div class="card" style="padding: 2.5rem; background: linear-gradient(135deg, var(--surface), var(--surface-card)); margin-bottom: 3rem;">
+  <div class="grid grid-2" style="align-items: center;">
+    <div>
+      <span class="badge badge-warning" style="margin-bottom: 1rem;">Zero Re-use Guarantee</span>
+      <h2>Atomic Single-Use Ticket Check-In</h2>
+      <p>
+        When a participant arrives at the turnstile, the venue scanner decodes the QR code and initiates a 3-minute verification window. The live camera matches the face against the ticket owner. Only upon verified identity match is the ticket consumed in an atomic database transaction.
+      </p>
+      <div style="margin-top: 1.5rem;">
+        <a href="/auth/register" class="btn btn-primary">Create Participant Account</a>
+      </div>
+    </div>
+    <div style="border-left: 1px solid var(--border); padding-left: 2rem;">
+      <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Methodological Reference</h3>
+      <p style="font-size: 0.95rem;">
+        Based on research in <em>Journal of Embedded System Security and Intelligent Systems (JESSI)</em>:
+      </p>
+      <ul style="color: var(--text-secondary); font-size: 0.9rem; padding-left: 1.25rem; line-height: 1.8;">
+        <li>20 Enrolled Identities with 9 Representative Facial Poses</li>
+        <li>128×128 Normalized Image Representation</li>
+        <li>Euclidean Distance Classification & Unknown Face Rejection</li>
+        <li>Particle Swarm Optimization for Hyperparameter Tuning</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

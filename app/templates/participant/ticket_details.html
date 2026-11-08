@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket Details — {{ ticket.event.title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 560px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="/participant/tickets" style="font-size: 0.9rem; color: var(--text-muted);">&larr; Back to My Tickets</a>
+  </div>
+
+  <div class="card" style="text-align: center; padding: 2.5rem 2rem;">
+    <div style="margin-bottom: 1rem;">
+      {% if ticket.status.value == 'ACTIVE' %}
+        <span class="badge badge-success" style="font-size: 0.9rem; padding: 0.4rem 1rem;">ACTIVE — Ready for Check-in</span>
+      {% elif ticket.status.value == 'USED' %}
+        <span class="badge badge-danger" style="font-size: 0.9rem; padding: 0.4rem 1rem;">USED — Already Consumed</span>
+      {% else %}
+        <span class="badge badge-warning" style="font-size: 0.9rem; padding: 0.4rem 1rem;">{{ ticket.status.value }}</span>
+      {% endif %}
+    </div>
+
+    <h2 style="margin-bottom: 0.5rem;">{{ ticket.event.title }}</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+      📍 {{ ticket.event.location }} &bull; 🗓️ {{ ticket.event.start_at.strftime('%d %b %Y %H:%M') }}
+    </p>
+
+    <!-- QR Code Display -->
+    <div style="background-color: #ffffff; padding: 1.5rem; border-radius: var(--radius-lg); display: inline-block; box-shadow: var(--shadow-lg); margin-bottom: 1.5rem;">
+      <img src="{{ qr_image_b64 }}" alt="Ticket QR Code" style="width: 220px; height: 220px; margin: 0 auto;" />
+    </div>
+
+    <!-- Manual token string for testing without camera -->
+    <div style="background-color: var(--surface); padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; text-align: left;">
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">QR Token String (for testing or manual entry):</div>
+      <code style="word-break: break-all; color: var(--primary); font-size: 0.85rem;">{{ raw_token }}</code>
+    </div>
+
+    <div style="text-align: left; background-color: var(--surface); padding: 1rem 1.25rem; border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <div style="margin-bottom: 0.4rem;">Ticket Owner: <strong>{{ ticket.user.name }}</strong></div>
+      <div style="margin-bottom: 0.4rem;">Ticket ID: <code>{{ ticket.id }}</code></div>
+      <div>Issued At: {{ ticket.issued_at.strftime('%d %b %Y %H:%M') }}</div>
+      {% if ticket.used_at %}
+        <div style="color: var(--danger); margin-top: 0.4rem;">Used At: {{ ticket.used_at.strftime('%d %b %Y %H:%M') }}</div>
+      {% endif %}
+    </div>
+
+    <div class="alert alert-warning" style="text-align: left; font-size: 0.85rem;">
+      ⚠️ <strong>Two-Factor Entrance Security:</strong> This QR Code is bound to your face. At the turnstile, the venue camera will verify your face before entrance is granted. Sharing or copying this QR code will not allow other individuals to enter.
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Venue Scanner — Smart Event Ticketing{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  <div class="flex-between" style="margin-bottom: 1.5rem;">
+    <h2>Venue Biometric Scanner</h2>
+    <a href="/operator/dashboard" class="btn btn-secondary btn-sm">&larr; Operator Dashboard</a>
+  </div>
+
+  <div class="card" style="padding: 2rem;">
+    <!-- Camera Viewport -->
+    <div class="camera-container" style="max-width: 480px;">
+      <video id="operator-camera" class="camera-feed" autoplay playsinline muted></video>
+      <div class="camera-guide-box"></div>
+    </div>
+
+    <!-- Scanner Status Text -->
+    <div id="checkin-status" class="alert alert-warning" style="text-align: center; justify-content: center; font-size: 1rem; margin-bottom: 1.5rem;">
+      Click "Activate Scanner" to start the camera stream.
+    </div>
+
+    <!-- Initial Start Button -->
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <button id="btn-start-camera" class="btn btn-primary btn-lg">
+        Activate Scanner Camera
+      </button>
+    </div>
+
+    <!-- Step 1: QR Code Card -->
+    <div id="step-qr-card">
+      <div style="background-color: var(--surface); padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border);">
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Stage 1: Scan Participant QR Ticket</h3>
+        <p style="font-size: 0.85rem; margin-bottom: 1rem;">
+          Hold the digital QR ticket in front of the camera or manually enter the ticket token below.
+        </p>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="manual-qr-token" class="form-input" placeholder="Paste or type raw QR token..." style="font-size: 0.85rem;" />
+          <button id="btn-manual-qr" class="btn btn-secondary btn-sm">Submit Token</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Face Verification Card -->
+    <div id="step-face-card" style="display: none;">
+      <div style="background-color: var(--surface); padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); text-align: center;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--primary);">Stage 2: Live Face Verification</h3>
+        <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+          Ensure the participant faces the camera within the circular guide, then click Verify Face.
+        </p>
+        <button id="btn-verify-face" class="btn btn-success btn-lg" disabled>
+          📸 Verify Face & Authorize Entry
+        </button>
+        <div style="margin-top: 1rem; border-top: 1px dashed var(--border); padding-top: 0.75rem;">
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Or upload face image (for testing without webcam):</label>
+          <input type="file" id="face-file-input" accept="image/*" class="form-input" style="font-size: 0.8rem;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Card -->
+    <div id="result-card" style="display: none;">
+      <div id="verdict-banner" class="verdict-banner"></div>
+      <div id="verdict-message" style="text-align: center; margin: 1rem 0; font-size: 1.1rem;"></div>
+      <div id="verdict-details" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem;"></div>
+      <button id="btn-next-person" class="btn btn-primary btn-lg" style="width: 100%;">
+        Process Next Participant &rarr;
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/camera.js"></script>
+<script src="/static/js/qr-scanner.js"></script>
+<script src="/static/js/verification.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    new VenueCheckinController();
+  });
+</script>
+{% endblock %}
+

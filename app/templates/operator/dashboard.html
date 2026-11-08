@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Operator Dashboard — Smart Event Ticketing{% endblock %}
+
+{% block content %}
+<div class="flex-between" style="margin-bottom: 2rem;">
+  <div>
+    <h1>Venue Entrance Operator</h1>
+    <p>Select your assigned event and launch the biometric turnstile scanner.</p>
+  </div>
+  <a href="/operator/scanner" class="btn btn-primary btn-lg">Launch Live Scanner</a>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <h2 style="margin-bottom: 1.25rem;">Active Events for Check-in</h2>
+  {% if not events %}
+    <p style="color: var(--text-muted);">No active events are currently scheduled.</p>
+  {% else %}
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {% for ev in events %}
+        <div class="flex-between" style="background-color: var(--surface); padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border);">
+          <div>
+            <h3>{{ ev.title }}</h3>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              📍 {{ ev.location }} &bull; 🗓️ {{ ev.start_at.strftime('%d %b %Y %H:%M') }}
+            </div>
+          </div>
+          <a href="/operator/scanner?event_id={{ ev.id }}" class="btn btn-success">
+            Open Scanner for this Event
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2 style="margin-bottom: 1rem;">Recent Verification Logs</h2>
+  {% if not recent_logs %}
+    <p style="color: var(--text-muted); font-size: 0.9rem;">No check-in attempts recorded yet.</p>
+  {% else %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted);">
+            <th style="padding: 0.75rem;">Time</th>
+            <th style="padding: 0.75rem;">Ticket ID</th>
+            <th style="padding: 0.75rem;">Result</th>
+            <th style="padding: 0.75rem;">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in recent_logs %}
+            <tr style="border-bottom: 1px solid var(--surface-hover);">
+              <td style="padding: 0.75rem;">{{ log.created_at.strftime('%H:%M:%S') }}</td>
+              <td style="padding: 0.75rem;"><code>{{ log.ticket_id[:8] }}...</code></td>
+              <td style="padding: 0.75rem;">
+                {% if log.result.value == 'GRANTED' %}
+                  <span class="badge badge-success">GRANTED</span>
+                {% else %}
+                  <span class="badge badge-danger">DENIED</span>
+                {% endif %}
+              </td>
+              <td style="padding: 0.75rem; color: var(--text-secondary);">
+                {{ log.failure_reason or 'Identity verified successfully' }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
