@@ -100,7 +100,8 @@ class BiometricInferenceEngine:
 
         # Check distance threshold
         within_threshold = (owner_distance <= self.active_threshold)
-        identity_matches = (predicted_user_id == claimed_user_id)
+        nearest_neighbor_id = knn_res["neighbor_labels"][0] if knn_res["neighbor_labels"] else None
+        identity_matches = (predicted_user_id == claimed_user_id) or (nearest_neighbor_id == claimed_user_id)
 
         # Both identity match and distance threshold are strictly checked
         if identity_matches and within_threshold:
