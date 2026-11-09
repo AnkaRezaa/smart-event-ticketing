@@ -68,43 +68,53 @@ sequenceDiagram
 
 ---
 
-## 4. Local Development Setup (Windows / PowerShell)
+## 4. Cara Menjalankan Aplikasi (Quickstart)
 
-### Prerequisites
-* Windows 10/11 with PowerShell
-* Python 3.10 or 3.11 installed (e.g. from Laragon `C:\laragon\bin\python\python-3.10\python.exe` or official Python)
+### Cara Cepat (Menggunakan PowerShell Shortcut Runner)
 
-### 1. Clone & Navigate
+Di terminal PowerShell, Anda cukup menggunakan script `run.ps1`:
+
 ```powershell
-cd C:\laragon\www\smart-event-ticketing
+# 1. Menjalankan server web lokal (FastAPI + Uvicorn)
+.\run.ps1 server
+
+# 2. Menjalankan seluruh automated unit test (12 passed)
+.\run.ps1 test
+
+# 3. Menjalankan eksperimen riset benchmark (HOG-KNN vs PSO-KNN)
+.\run.ps1 experiment
+
+# 4. Menjalankan migrasi skema database (Alembic)
+.\run.ps1 migrate
 ```
 
-### 2. Activate Virtual Environment
+Buka browser Anda di: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+
+---
+
+### Cara Alternatif (Manual via Virtual Environment)
+
+Jika ingin menjalankan perintah langsung tanpa runner:
+
+```powershell
+# Jalankan server
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+
+# Jalankan test
+.\.venv\Scripts\python.exe -m pytest tests -v
+
+# Jalankan eksperimen riset
+.\.venv\Scripts\python.exe -m research.experiments.run_experiment
+
+# Seed ulang data demo peserta (Budi Santoso & tiket aktif)
+.\.venv\Scripts\python.exe scripts/seed_demo_participant.py
+```
+
+Atau jika virtual environment diaktifkan terlebih dahulu:
 ```powershell
 .\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-
-### 3. Verify Dependencies
-```powershell
-pip install -r requirements.txt
-```
-
-### 4. Run Machine Learning Benchmark Experiment
-Runs Model A (Baseline KNN) vs Model B (PSO-KNN) and outputs convergence charts:
-```powershell
-python -m research.experiments.run_experiment
-```
-
-### 5. Run Automated Tests
-```powershell
-pytest tests -v
-```
-
-### 6. Start Development Server
-```powershell
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-Open your browser at: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
 ---
 
